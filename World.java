@@ -60,17 +60,14 @@ public class World {
 		}
 	}
 
-	public void update(PPM ppm, int i) {
+	public void update(PPM ppm) {
 		for (Particle p : particles) p.update(function);
 		ppm.clear();
 
 		for (Particle p : particles) {
 			int row = (int) Math.floor(p.pos()[0] + (max_y / 2));
 			int col = (int) Math.floor(p.pos()[1] + (max_x / 2));
-//			System.out.printf("new dot on %d, %d\n", row, col);
-			ppm.addDot(row, col);
+			ppm.addDot(col, row);
 		}
-
-		ppm.write(i);
 	}
 }
