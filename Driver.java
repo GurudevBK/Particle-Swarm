@@ -2,24 +2,44 @@ public class Driver {
 	
 	public static void main(String[] args) {
 
-		if (args.length != 7) {
-			System.out.println("usage: [prog] x-max y-max numParticles inertia cognition social maxVelocity");
+		int	   nEpochs	  = 0;
+		int	   nParticles = 0;
+		double inertia 	  = 0;
+		double cognition  = 0;
+		double social	  = 0;
+		int	   function   = 1;
+
+		if (args.length == 6) {
+			
+			nEpochs	   = Integer.parseInt(args[0]);
+			nParticles = Integer.parseInt(args[1]);
+			inertia    = Double.parseDouble(args[2]);
+			cognition  = Double.parseDouble(args[3]);
+			social	   = Double.parseDouble(args[4]);
+			function   = Integer.parseInt(args[5]);
+
+		} else {
+			
+			System.out.println("usage: [prog] nEpochs nParticles inertia cognition social function");
 			System.exit(-1);
 		}
 
 		for (String s : args) System.out.println(s);
 
-		World world = new World(Integer.parseInt(args[0]),
-								Integer.parseInt(args[1]),
-								Integer.parseInt(args[2]),
-								Double.parseDouble(args[3]),
-								Double.parseDouble(args[4]),
-								Double.parseDouble(args[5]),
-								Double.parseDouble(args[6]));
+		World world = new World(100, 
+								100, 
+								nParticles, 
+								inertia, 
+								cognition, 
+								social, 
+								4, 
+								function);
 
-		for (int i = 0; i < 100; i++) {
-			world.update();
-//			System.out.printf("best: [%f, %f]\n", world.best[0], world.best[1]);
+		PPM ppm = new PPM(100, 100);
+		
+		for (int i = 0; i < nEpochs; i++) {
+			world.update(ppm, i);
+//			ppm.write(i);
 		}
 	}
 }

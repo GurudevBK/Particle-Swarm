@@ -23,7 +23,7 @@ public class Particle {
 		return pos;
 	}
 
-	public void update() {
+	public void update(int func) {
 		
 		Random rand = new Random();
 		
@@ -44,17 +44,35 @@ public class Particle {
 		// update position
 		pos[0] += vel[0];
 		pos[1] += vel[1];
+		
+		if (func == 1) {
+			
+			// update personal best
+			if (Q1(pos) > Q1(best)) {
+				best = pos.clone();
+//				System.out.printf("new personal best: [%f, %f]\n", pos[0], pos[1]);
+			}
 
-		// update personal best
-		if (Q1(pos) > Q1(best)) {
-			best = pos.clone();
-			System.out.printf("new personal best: [%f, %f]\n", pos[0], pos[1]);
-		}
+			// update world best
+			if (Q1(pos) > Q1(world.best)) {
+				world.best = pos.clone();
+//				System.out.printf("new world best: [%f, %f]\n", pos[0], pos[1]);
+			}
+		} 
+		
+		else {
 
-		// update world best
-		if (Q1(pos) > Q1(world.best)) {
-			world.best = pos.clone();
-			System.out.printf("new world best: [%f, %f]\n", pos[0], pos[1]);
+			// update personal best
+			if (Q2(pos) > Q2(best)) {
+				best = pos.clone();
+//				System.out.printf("new personal best: [%f, %f]\n", pos[0], pos[1]);
+			}
+
+			// update world best
+			if (Q2(pos) > Q2(world.best)) {
+				world.best = pos.clone();
+//				System.out.printf("new world best: [%f, %f]\n", pos[0], pos[1]);
+			} 
 		}
 	}
 
