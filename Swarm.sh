@@ -1,8 +1,4 @@
-eval `javac *.java`
-pid=$!
-wait $pid
-
-eval `java Driver $1 $2 $3 $4 $5 $6 $7`
+eval `java -jar Swarm.jar $1 $2 $3 $4 $5 $6 $7`
 pid=$!
 wait $pid
 

@@ -4,9 +4,9 @@ import java.lang.Math.*;
 public class Particle {
 	
 	private World     world;
-	private double[]  pos;
 	private double[]  vel;
 	private double[]  best;
+	public  double[]  pos;
 
 	// constructor
 	public Particle(World wrld, double[] initpos) {
@@ -17,10 +17,6 @@ public class Particle {
 		vel    = new double[2];
 		vel[0] = 0;
 		vel[1] = 0;
-	}
-
-	public double[] pos() {
-		return pos;
 	}
 
 	public void update(int func) {
