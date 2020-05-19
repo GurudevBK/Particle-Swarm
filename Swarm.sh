@@ -3,6 +3,8 @@
 # takes 1 cmd arg: params.txt
 # launches Swarm.jar with all parameters
 
+mkdir raw
+
 while IFS='' read -r line || [[ -n "$line" ]]; do 
 	
 	p=($line)
