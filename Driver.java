@@ -25,25 +25,39 @@ class Driver {
 
 		} else {
 			
-			System.out.println("usage: java -jar Swarm.jar nEpochs(int) nParticles(int) inertia max_velocity cognition social function(1 or 2)");
+			System.out.println("usage: java -jar Swarm.jar nEpochs(int) nParticles(int) inertia max_velocity cognition social function(1|2|3)");
 			System.exit(-1);
 		}
 
-		for (String s : args) System.out.println(s);
-
-		World world = new World(200, 200, nParticles, inertia, cognition, social, maxVel, function);
-		PPM ppm = new PPM(200, 200);
+		World world = new World(100, 100, nParticles, inertia, maxVel, cognition, social, function);
+		PPM ppm = new PPM(100, 100);
 		List<String> data = new ArrayList<String> ();
-		data.add("epoch, avg_err, std_dev, n_within_0.0001, converged");
+		data.add("epoch, avg_err_x, avg_err_y, avg_err_mag, abs_err, std_dev_avg, std_dev_best, %_within_0.1");
 		
-		for (int i = 0; i < nEpochs; i++) {
+		int count;
+		for (count = 0; count < nEpochs; count++) {
 			world.update(ppm);
-			ppm.write(i);
-			if (!world.calcData(data, i)) break;
+			ppm.write(count);
+			if (!world.calcData(data, count)) break;
 		}
 	
 		try (PrintWriter w = new PrintWriter(
-								 String.format( "e%d_p%d_i%f_v%f_c%f_s%f_f%d.csv", 
+								 String.format("raw/e%d_p%d_i%.2f_v%.2f_c%.2f_s%.2f_f%d.csv", 
+								 nEpochs,									  
+								 nParticles, 
+								 inertia, 
+								 maxVel,
+								 cognition, 
+								 social, 
+								 function))) {
+
+			for (String s : data) w.println(s);
+		}
+	
+		catch (IOException e) {}
+
+		try (PrintWriter w = new PrintWriter(
+								 String.format("raw/e%d_p%d_i%.2f_v%.2f_c%.2f_s%.2f_f%d_FINALPOS.csv", 
 								 nEpochs,									  
 								 nParticles, 
 								 inertia, 
@@ -52,7 +66,8 @@ class Driver {
 								 social, 
 								 function))) {
 			
-			for (String s : data) w.println(s);
+			w.println("FINALPOS_X, FINALPOS_Y\n20, 7\n-20, -7");
+			for (Particle p : world.particles) w.printf("%f, %f\n", p.pos[0], p.pos[1]);
 		}
 
 		catch (IOException e) {}

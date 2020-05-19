@@ -22,9 +22,9 @@ public class World {
 				  int mY, 
 				  int nP, 
 				  double inrt, 
+				  double mv,
 				  double cogn, 
 				  double soc, 
-				  double mv,
 				  int	 func) {
 
 		max_x	    = mX;
@@ -54,8 +54,10 @@ public class World {
 				if (particles.get(0).Q1(init) > particles.get(0).Q1(best)) best = init.clone();
 			} else if (function == 2) {
 				if (particles.get(0).Q2(init) > particles.get(0).Q2(best)) best = init.clone();
+			} else if (function == 3) {
+				if (particles.get(0).Q3(init) > particles.get(0).Q3(best)) best = init.clone();
 			} else {
-				System.out.println("fatal error: function must be 1 or 2");
+				System.out.println("fatal error: function must be 1, 2, or 3");
 				System.exit(-1);
 			}
 		}
@@ -75,39 +77,63 @@ public class World {
 	}
 
 	public boolean calcData(List<String> data, int epoch) {
-		//epoch, avg_err, std_dev, n_within_0.0001, converged
+		//epoch, avg_err_x, avg_err_y, avg_err_mag, abs_err, std_dev_avg, std_dev_best, %_within_0.001
 
+		double epsilon = 0;
 		double[] avg   = new double[2];
-		double avg_err = 0;
-		double std_dev = 0;
-		int      eps   = 0;
+		double[] err   = new double[2];
+		double abs_err = 0;
+		double std_dev_avg  = 0;
+		double std_dev_best = 0;
 
+		avg[0] = 0;
+		avg[1] = 0;
+		err[0] = 0;
+		err[1] = 0;
 
-		//avg all vectors
+		// avg all vectors and errors relative to best particle
 		for (Particle p : particles) {
 			
+			//avg
 			avg[0] += p.pos[0] / nParticles;
 			avg[1] += p.pos[1] / nParticles;
-	
-			if (Math.hypot(20 - p.pos[0], 7 - p.pos[1]) < 0.0001) eps++;
+			
+			//error with respect to best particle
+			err[0] += Math.pow((p.pos[0] - best[0]), 2);
+			err[1] += Math.pow((p.pos[1] - best[1]), 2);
+			
+			//number of particles within 0.1 of global maximum
+			if (Math.hypot(20 - p.pos[0], 7 - p.pos[1]) < 0.1) epsilon++;
 		}
 
-		avg_err = Math.hypot(20 - avg[0], 7 - avg[1]);
-
-		//calculate standard deviation
-		for (Particle p : particles) 
-			std_dev += Math.pow(Math.hypot(p.pos[0] - avg[0], p.pos[1] - avg[1]), 2) / nParticles; 
+		// "absolute error" calculated relative to known global maximum (irrelevant with Q3)
+		abs_err = Math.hypot(20 - avg[0], 7 - avg[1]);
 		
-//	avg_err = Math.hypot(20, 7) - avg_mag;
-		std_dev = Math.sqrt(std_dev);
-		
-		data.add(String.format("%d, %f, %f, %d", 
-							   epoch, 
-							   avg_err,
-							   std_dev,
-							   eps));
+		//calculate error vector
+		err[0] = Math.sqrt((1.0 / (2 * nParticles) * err[0]));
+		err[1] = Math.sqrt((1.0 / (2 * nParticles) * err[1]));
 
-		if (std_dev < 0.03)
+		//calculate standard deviation from best particle
+		for (Particle p : particles) {
+			std_dev_avg  += Math.pow(Math.hypot(p.pos[0] - avg[0], p.pos[1] - avg[1]), 2) / nParticles; 
+			std_dev_best += Math.pow(Math.hypot(p.pos[0] - best[0], p.pos[1] - best[1]), 2) / nParticles; 
+		}
+		
+		std_dev_avg  = Math.sqrt(std_dev_avg);
+		std_dev_best = Math.sqrt(std_dev_best);
+		
+		data.add(String.format("%d, %f, %f, %f, %f, %f, %f, %f", 
+							   epoch,						
+							   err[0],						
+							   err[1],						
+							   Math.hypot(err[0], err[1]),
+							   abs_err,
+							   std_dev_avg,
+							   std_dev_best,
+							   100.0 * (epsilon / nParticles)));
+
+		//stopping condition
+		if (std_dev_best < 0.02)
 			return false;
 		else 
 			return true;

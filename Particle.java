@@ -54,15 +54,28 @@ public class Particle {
 			}
 		} 
 		
-		else {
+		else if (func == 2) {
 
 			// update personal best
-			if (Q2(pos) > Q2(best)) {
+				if (Q2(pos) > Q2(best)) {
 				best = pos.clone();
 			}
 
 			// update world best
 			if (Q2(pos) > Q2(world.best)) {
+				world.best = pos.clone();
+			} 
+		}
+		
+		else {
+
+			// update personal best
+				if (Q3(pos) > Q3(best)) {
+				best = pos.clone();
+			}
+
+			// update world best
+			if (Q3(pos) > Q3(world.best)) {
 				world.best = pos.clone();
 			} 
 		}
@@ -76,6 +89,10 @@ public class Particle {
 		return 9 * Math.max(0, 10 - Math.pow(pDist(pos), 2)) + 
 			   10 * (1 - (pDist(pos) / world.maxDist)) + 
 			   70 * (1 - (nDist(pos) / world.maxDist));
+	}
+
+	public double Q3(double[] pos) {
+		return Math.cos(Math.sqrt(Math.abs(Math.pow(pos[0], 2) + Math.pow(pos[1], 2) + Math.sin(10.0 - pos[0])))) * Math.sqrt(Math.abs(Math.pow(pos[0], 2) + Math.pow(pos[1], 2)));
 	}
 
 	public double pDist(double[] pos) {
